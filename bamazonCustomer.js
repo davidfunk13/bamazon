@@ -56,37 +56,61 @@ function askForProductID() {
         switch (answers.productid) {
             case '1':
                 console.log('case 1')
+                askQuantity();
                 break;
             case '2':
                 console.log('case 2')
+                askQuantity();
                 break;
             case '3':
                 console.log('case 3');
+                askQuantity();
                 break;
             case '4':
                 console.log('case 4');
+                askQuantity();
                 break;
             case '5':
                 console.log('case 5');
+                askQuantity();
                 break;
             case '6':
                 console.log('case 6');
+                askQuantity();
                 break;
             case '7':
                 console.log('case 7');
+                askQuantity();
                 break;
             case '8':
                 console.log('case 8');
+                askQuantity();
                 break;
             case '9':
                 console.log('case 9');
+                askQuantity();
                 break;
                 case '10':
                 console.log('case 10');
+                askQuantity();
                 break;
             default:
                 console.log('asdasda')
         }
     })
+}
+function askQuantity () {
+    inquirer.prompt({
+        type: 'input',
+        name: 'quantity',
+        message: 'How many of this iten would you like to order?'
+
+    }).then(answers => {
+        if (isNaN(answers.quantity)) {
+            console.log('That isnt a number.')
+            askQuantity();
+        }
+        console.log(answers.quantity);
+    });
 }
 
