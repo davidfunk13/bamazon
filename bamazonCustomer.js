@@ -131,11 +131,12 @@ function askQuantity(productID) {
             console.log('That isnt a number.')
             askQuantity();
         }
-        checkDatabase(productID);
+        var userQuantity = answers.quantity;
+        checkDatabase(productID, userQuantity);
     });
 }
-function checkDatabase(productID) {
-    console.log(`checkdatabase function: ${productID}`)
+function checkDatabase(productID, userQuantity) {
+    console.log(`checkdatabase function: Product ID: ${productID} userQuantity: ${userQuantity}`)
     bamazonConnection.query("SELECT * from products", function (error, response) {
         if (error) {
             console.error(error);
@@ -143,12 +144,14 @@ function checkDatabase(productID) {
          console.log(productID)
         for (var i = 0; i < response.length; i++) {
             var item = response[i].item_id;
-            console.log(`Item ${item} product id ${productID}`)
-            if (item === productID.toString()) {
-                console.log(`success`)
+            if (item.toString() === productID.toString()) {
+                console.log(response[i])
+
+                if (Number(response[i].stock_quantity) < Number(userQuantity)) {
+                    console.log('Insufficient stock!')
+                }
             }
         }
-        // }
         // console.log(response);
     });
     // disconnectFromBamazon();
