@@ -37,10 +37,6 @@ function disconnectFromBamazon() {
         console.log(`query made and connection ended successfully`)
     });
 }
-
-
-
-
 function getAll() {
     connectToBamazon();
     bamazonConnection.query("SELECT * from products", function (error, response) {
@@ -56,7 +52,6 @@ function getAll() {
     // disconnectFromBamazon()
     askForProductID();
 };
-
 function askForProductID() {
     inquirer.prompt({
         type: 'list',
@@ -124,7 +119,7 @@ function askQuantity(productID) {
     inquirer.prompt({
         type: 'input',
         name: 'quantity',
-        message: 'How many of this iten would you like to order?'
+        message: 'How many of this item would you like to order?'
     }).then(answers => {
         if (isNaN(answers.quantity)) {
             console.log('That isnt a number.')
@@ -149,14 +144,16 @@ function checkDatabase(productID, userQuantity) {
          console.log(`Product ID: ${productID}`)
         for (var i = 0; i < response.length; i++) {
             var item = response[i].item_id;
+            var productForSummary = response[i].product_name;
             if (item.toString() === productID.toString()) {
-                // console.log(response[i])
+                console.log(productForSummary)
                 if (Number(response[i].stock_quantity) < Number(userQuantity)) {
                     console.log(`Insufficient stock for your order for ${response[i].product_name}! We currently have ${response[i].stock_quantity} in stock. Please Try again!`)
                     askQuantity(productID);
                 }
                 if (Number(response[i].stock_quantity) > Number(userQuantity)) {
-                    console.log('running checkout function')
+                    console.log('running checkout function');
+                    orderSummary(productForSummary, productID, userQuantity);
                     // bamazonCheckout();
                 }
             }
@@ -164,3 +161,12 @@ function checkDatabase(productID, userQuantity) {
     });
 }
 
+function orderSummary(productForSummary, productID, userQuantity) {
+    console.log(`Here is your Order Summary! \n Product Name: ${productForSummary} ProductID:${productID} Quantity ordered:${userQuantity}`)
+}
+// function bamazonCheckout() {
+//     bamazonConnection.query("SELECT * from products", function (error, response) {
+//         if (error) {
+//             console.error(error);
+//         }           
+// }
