@@ -125,7 +125,7 @@ function askQuantity(productID) {
             console.log('That isnt a number.')
             askQuantity(productID);
         }
-        if (Number(answers.quantity)){
+        if (Number(answers.quantity)) {
             var userQuantity = answers.quantity;
             checkDatabase(productID, userQuantity);
         }
@@ -140,11 +140,12 @@ function checkDatabase(productID, userQuantity) {
     bamazonConnection.query("SELECT * from products", function (error, response) {
         if (error) {
             console.error(error);
-        }           
-         console.log(`Product ID: ${productID}`)
+        }
+        console.log(`Product ID: ${productID}`)
         for (var i = 0; i < response.length; i++) {
             var item = response[i].item_id;
             var productForSummary = response[i].product_name;
+            var productPrice = response[i].price;
             if (item.toString() === productID.toString()) {
                 console.log(productForSummary)
                 if (Number(response[i].stock_quantity) < Number(userQuantity)) {
@@ -152,8 +153,7 @@ function checkDatabase(productID, userQuantity) {
                     askQuantity(productID);
                 }
                 if (Number(response[i].stock_quantity) > Number(userQuantity)) {
-                    console.log('running checkout function');
-                    orderSummary(productForSummary, productID, userQuantity);
+                    orderSummary(productPrice, productForSummary, productID, userQuantity);
                     // bamazonCheckout();
                 }
             }
@@ -161,12 +161,45 @@ function checkDatabase(productID, userQuantity) {
     });
 }
 
-function orderSummary(productForSummary, productID, userQuantity) {
-    console.log(`Here is your Order Summary! \n Product Name: ${productForSummary} ProductID:${productID} Quantity ordered:${userQuantity}`)
+function orderSummary(productPrice, productForSummary, productID, userQuantity) {
+    // userQuantity = Number(userQuantity);
+    var totalPrice = productPrice * userQuantity;
+    console.log(
+        `------------------\n    
+Here is your Order Summary! Is this correct?\n
+------------------\n\n
+    
+Product Name: ${productForSummary}\n\n
+    
+Quantity ordered: ${userQuantity}\n\n
+    
+Total: ${totalPrice}\n\n
+    
+If yes, you will be taken to a confirm order page with a total!`
+    )
+    inquirer.prompt({
+        type: 'list',
+        name: 'confirmcheckout',
+        message: 'Would you like to confirm your order?',
+        choices: ['Yes', 'No']
+    }).then(answers => {
+        var answer = answers.confirmcheckout;
+        console.log(answer)
+        if (answer === 'Yes') {
+            console.log(`its yes`);
+        }
+        if (answer === `No`) {
+            console.log(`its no`)
+            getAll();
+        }
+    });
 }
-// function bamazonCheckout() {
-//     bamazonConnection.query("SELECT * from products", function (error, response) {
-//         if (error) {
-//             console.error(error);
-//         }           
-// }
+
+function bamazonCheckout() {
+    bamazonConnection.query("SELECT * from products", function (error, response) {
+        if (error) {
+            console.error(error);
+        }
+        console.log('checkout')
+    });
+};
