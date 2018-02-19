@@ -121,7 +121,6 @@ function askForProductID() {
     })
 }
 function askQuantity(productID) {
-    console.log(productID)
     inquirer.prompt({
         type: 'input',
         name: 'quantity',
@@ -129,10 +128,16 @@ function askQuantity(productID) {
     }).then(answers => {
         if (isNaN(answers.quantity)) {
             console.log('That isnt a number.')
-            askQuantity();
+            askQuantity(productID);
         }
-        var userQuantity = answers.quantity;
-        checkDatabase(productID, userQuantity);
+        if (Number(answers.quantity)){
+            var userQuantity = answers.quantity;
+            checkDatabase(productID, userQuantity);
+        }
+        if (answers.quantity === '') {
+            console.log('Please input an integer and try again.');
+            askQuantity(productID);
+        }
     });
 }
 function checkDatabase(productID, userQuantity) {
@@ -141,19 +146,21 @@ function checkDatabase(productID, userQuantity) {
         if (error) {
             console.error(error);
         }           
-         console.log(productID)
+         console.log(`Product ID: ${productID}`)
         for (var i = 0; i < response.length; i++) {
             var item = response[i].item_id;
             if (item.toString() === productID.toString()) {
-                console.log(response[i])
-
+                // console.log(response[i])
                 if (Number(response[i].stock_quantity) < Number(userQuantity)) {
-                    console.log('Insufficient stock!')
+                    console.log(`Insufficient stock for your order for ${response[i].product_name}! We currently have ${response[i].stock_quantity} in stock. Please Try again!`)
+                    askQuantity(productID);
+                }
+                if (Number(response[i].stock_quantity) > Number(userQuantity)) {
+                    console.log('running checkout function')
+                    // bamazonCheckout();
                 }
             }
         }
-        // console.log(response);
     });
-    // disconnectFromBamazon();
 }
 
