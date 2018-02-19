@@ -25,7 +25,7 @@ function connectToBamazon() {
         if (error) {
             console.error(error);
         }
-        console.log('connected');
+
     });
 }
 
@@ -134,21 +134,33 @@ function checkDatabase(productID, userQuantity) {
             var item = response[i].item_id;
             var productForSummary = response[i].product_name;
             var productPrice = response[i].price;
+            var currentStock = response[i].stock_quantity;
             if (item.toString() === productID.toString()) {
                 if (Number(response[i].stock_quantity) < Number(userQuantity)) {
-                    console.log(`-----------------\n\nInsufficient stock for your order for ${response[i].product_name}! We currently have ${response[i].stock_quantity} in stock. Please Try again!\n\n-------------------`)
+
+                    console.log(
+                        `-----------------\n\n
+Insufficient stock for your order for ${response[i].product_name}! 
+We currently have ${response[i].stock_quantity} in stock.\n\n
+Let me restock for you. 
+Please Try again!\n\n
+-------------------`
+                    )
+                    reStockStore();
                     askQuantity(productID);
+
                 }
                 if (Number(response[i].stock_quantity) >= Number(userQuantity)) {
-                    orderSummary(productPrice, productForSummary, productID, userQuantity);
+                    orderSummary(productPrice, productForSummary, productID, userQuantity, currentStock);
                     // bamazonCheckout();
                 }
+
             }
         }
     });
 }
 
-function orderSummary(productPrice, productForSummary, productID, userQuantity) {
+function orderSummary(productPrice, productForSummary, productID, userQuantity, currentStock) {
     // userQuantity = Number(userQuantity);
     var totalPrice = productPrice * userQuantity;
     console.log(
@@ -160,9 +172,7 @@ Product Name: ${productForSummary}\n\n
     
 Quantity ordered: ${userQuantity}\n\n
     
-Total: ${totalPrice.toFixed(2)}\n\n
-    
-If yes, you will be taken to a confirm order page with a total!`
+Total: $${totalPrice.toFixed(2)}\n\n`
     )
     inquirer.prompt({
         type: 'list',
@@ -173,7 +183,8 @@ If yes, you will be taken to a confirm order page with a total!`
         var answer = answers.confirmcheckout;
         console.log(answer)
         if (answer === 'Yes') {
-            bamazonCheckout();
+            var newStock = currentStock - userQuantity;
+            bamazonCheckout(newStock, productID);
         }
         if (answer === `No`) {
             console.log(`its no`)
@@ -182,11 +193,37 @@ If yes, you will be taken to a confirm order page with a total!`
     });
 }
 
-function bamazonCheckout() {
-    bamazonConnection.query("SELECT * from products", function (error, response) {
-        if (error) {
-            console.error(error);
+function bamazonCheckout(newStock, productID) {
+    bamazonConnection.query("UPDATE products SET ? WHERE ?",
+        [
+            {
+                stock_quantity: newStock
+            },
+            {
+                item_id: productID
+            }
+        ],
+        function (error, response) {
+            if (error) {
+                console.error(error);
+            }
+            else {
+                console.log(`Congratulations! Your order is on the way. Now leaving store.`)
+                console.log(`Remaining stock for Item ID ${productID}: ${newStock}`)
+                disconnectFromBamazon();
+            }
+        });
+};
+
+function reStockStore() {
+    bamazonConnection.query("UPDATE products SET ?", [
+        {
+            stock_quantity: 100
         }
-        console.log('checkout')
+    ], function (error, response) {
+        if (error) {
+            console.log(error);
+        }
     });
+    console.log(`STORE HAS BEEN RESTOCKED! to 100 for each available item! :)`)
 };
