@@ -45,11 +45,11 @@ function getAll() {
         }
         console.log(`Here are our items in stock!`);
         for (var i = 0; i < response.length; i++) {
+            var productName = response[i].product_name;
             console.log(`Item ID: ${response[i].item_id}\n\nProduct Name: ${response[i].product_name}\nPrice: ${response[i].price}\n`);
             console.log('-----------------------------')
         }
-    });
-    // disconnectFromBamazon()
+    })
     askForProductID();
 };
 function askForProductID() {
@@ -62,56 +62,46 @@ function askForProductID() {
         switch (answers.productid) {
             case '1':
                 var productID = answers.productid;
-                console.log('case 1')
                 askQuantity(productID);
                 break;
             case '2':
                 var productID = answers.productid;
-                console.log('case 2')
                 askQuantity(productID);
                 break;
             case '3':
                 var productID = answers.productid;
-                console.log('case 3');
                 askQuantity(productID);
                 break;
             case '4':
                 var productID = answers.productid;
-                console.log('case 4');
                 askQuantity(productID);
                 break;
             case '5':
                 var productID = answers.productid;
-                console.log('case 5');
                 askQuantity();
                 break;
             case '6':
                 var productID = answers.productid;
-                console.log('case 6');
                 askQuantity(productID);
                 break;
             case '7':
                 var productID = answers.productid;
-                console.log('case 7');
                 askQuantity(productID);
                 break;
             case '8':
                 var productID = answers.productid;
-                console.log('case 8');
                 askQuantity(productID);
                 break;
             case '9':
                 var productID = answers.productid;
-                console.log('case 9');
                 askQuantity(productID);
                 break;
             case '10':
                 var productID = answers.productid;
-                console.log('case 10');
                 askQuantity(productID);
                 break;
             default:
-                console.log('asdasda')
+                console.log('something went wrong.')
         }
     })
 }
@@ -136,23 +126,20 @@ function askQuantity(productID) {
     });
 }
 function checkDatabase(productID, userQuantity) {
-    console.log(`checkdatabase function: Product ID: ${productID} userQuantity: ${userQuantity}`)
     bamazonConnection.query("SELECT * from products", function (error, response) {
         if (error) {
             console.error(error);
         }
-        console.log(`Product ID: ${productID}`)
         for (var i = 0; i < response.length; i++) {
             var item = response[i].item_id;
             var productForSummary = response[i].product_name;
             var productPrice = response[i].price;
             if (item.toString() === productID.toString()) {
-                console.log(productForSummary)
                 if (Number(response[i].stock_quantity) < Number(userQuantity)) {
-                    console.log(`Insufficient stock for your order for ${response[i].product_name}! We currently have ${response[i].stock_quantity} in stock. Please Try again!`)
+                    console.log(`-----------------\n\nInsufficient stock for your order for ${response[i].product_name}! We currently have ${response[i].stock_quantity} in stock. Please Try again!\n\n-------------------`)
                     askQuantity(productID);
                 }
-                if (Number(response[i].stock_quantity) > Number(userQuantity)) {
+                if (Number(response[i].stock_quantity) >= Number(userQuantity)) {
                     orderSummary(productPrice, productForSummary, productID, userQuantity);
                     // bamazonCheckout();
                 }
@@ -173,7 +160,7 @@ Product Name: ${productForSummary}\n\n
     
 Quantity ordered: ${userQuantity}\n\n
     
-Total: ${totalPrice}\n\n
+Total: ${totalPrice.toFixed(2)}\n\n
     
 If yes, you will be taken to a confirm order page with a total!`
     )
@@ -186,7 +173,7 @@ If yes, you will be taken to a confirm order page with a total!`
         var answer = answers.confirmcheckout;
         console.log(answer)
         if (answer === 'Yes') {
-            console.log(`its yes`);
+            bamazonCheckout();
         }
         if (answer === `No`) {
             console.log(`its no`)
