@@ -139,9 +139,18 @@ function checkDatabase(productID) {
     bamazonConnection.query("SELECT * from products", function (error, response) {
         if (error) {
             console.error(error);
+        }           
+         console.log(productID)
+        for (var i = 0; i < response.length; i++) {
+            var item = response[i].item_id;
+            console.log(`Item ${item} product id ${productID}`)
+            if (item === productID.toString()) {
+                console.log(`success`)
+            }
         }
-        console.log(response);
+        // }
+        // console.log(response);
     });
-    disconnectFromBamazon();
+    // disconnectFromBamazon();
 }
 
