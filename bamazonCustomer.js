@@ -20,7 +20,7 @@ function askName() {
     }).then(answers => {
         console.log(`Welcome ${answers.name}!`);
         console.log(`---------------------------------`);
-        getAll();
+        setTimeout(function () { getAll() }, 5000);
     });
 };
 
@@ -89,10 +89,12 @@ function inventoryCheck(orderedItemID, orderQuantity) {
             var productName = response[i].product_name;
             var productPrice = response[i].price;
             var itemID = response[i].item_id;
-            console.log(`Product Name: ${productName}, Product Price: ${productPrice}, Item ID: ${itemID}, Current Stock: ${currentStock}`);
+            console.log(`--------------------\n\n`)
+            console.log(`Product Name: ${productName}\n\n Product Price: ${productPrice}\n\n Item ID: ${itemID}\n\n Current Stock: ${currentStock}\n\n`);
             if (currentStock < orderQuantity) {
-                console.log(`Insufficient quantity of ${productName} in stock to fulfill this order. We currently have ${currentStock} units in stock. Please try again. `);
-                getAll();
+                console.log(`---------------\n\n`)
+                console.log(`Insufficient quantity of ${productName} in stock to fulfill this order!\n\n We currently have ${currentStock} units in stock.\n\nPlease try again. `);
+                setTimeout(function () { getAll() }, 5000);
             }
             if (currentStock >= orderQuantity) {
                 orderSummary(productName, productPrice, orderQuantity, itemID, currentStock);
@@ -100,12 +102,13 @@ function inventoryCheck(orderedItemID, orderQuantity) {
         }
 
 
-        console.log(`Ordered Item ID: ${orderedItemID}, Order Quantity: ${orderQuantity}`);
+        // console.log(`Ordered Item ID: ${orderedItemID}, Order Quantity: ${orderQuantity}`);
 
     });
 }
 function orderSummary(productName, productPrice, orderQuantity, itemID, currentStock) {
-    console.log(`Here is a summary of your order!\n\n Product: ${productName}\n Product Price: ${productPrice}\n Order Quantity: ${orderQuantity}`)
+    console.log(`-------------------------------\n\n`)
+    console.log(`Here is a summary of your order!\n\n Product: ${productName}\n\n Product Price: ${productPrice}\n\n Order Quantity: ${orderQuantity}\n\n`)
     inquirer.prompt({
         type: 'list',
         name: 'continueorder',
@@ -125,7 +128,6 @@ function orderSummary(productName, productPrice, orderQuantity, itemID, currentS
 function checkout(productName, productPrice, orderQuantity, itemID, currentStock) {
     var orderTotal = productPrice * orderQuantity;
     var newStock = currentStock - orderQuantity;
-    console.log(currentStock, newStock)
     bamazonConnection.query("UPDATE products SET ? WHERE ?", [
         {
             stock_quantity: newStock
@@ -139,7 +141,8 @@ function checkout(productName, productPrice, orderQuantity, itemID, currentStock
         }
     });
     ///order recap
-    console.log(`Congratulations and thank you for your order!\n\nYour total for this order comes to: $${orderTotal}\nWe now have ${newStock} of the item you ordered remaining until our next shipment.\n\nThank you for choosing bAmazon.`)
+    console.log(`------------------------------\n\n`)
+    console.log(`Congratulations and thank you for your order!\n\nYour total for this order comes to: $${orderTotal}\n\nWe now have ${newStock} of ${productName} you ordered remaining until our next shipment.\n\nThank you for choosing bAmazon.\n\n-----------------------`)
     disconnectFromBamazon();
 }
 askName();
