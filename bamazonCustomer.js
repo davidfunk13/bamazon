@@ -1,6 +1,8 @@
 const inquirer = require('inquirer');
 const mysql = require('mysql');
 
+var allItems = false;
+
 var bamazonConnection = mysql.createConnection({
     host: "localhost",
     port: 3306,
@@ -14,7 +16,7 @@ function askName() {
         type: 'input',
         name: 'name',
         message: 'Welcome to bAmazon! What is your name?'
-    
+
     }).then(answers => {
         console.log(`Welcome ${answers.name}!`);
         console.log(`---------------------------------`);
@@ -23,25 +25,31 @@ function askName() {
 };
 
 function connectToBamazon() {
-    bamazonConnection.connect(function (error) {
-        if (error) {
-            console.error(error);
-        }
-
-    });
+    var connected = false;
+    if (connected = false) {
+        bamazonConnection.connect(function (error) {
+            if (error) {
+                console.error(error);
+            }
+            connected = true;
+        });
+    }
 };
 
 function disconnectFromBamazon() {
+    var connected = true;
     bamazonConnection.end(function (error) {
         if (error) {
             console.log(error);
         }
         console.log(`query made and connection ended successfully`)
+        connected = false;
     });
 };
 function getAll() {
     connectToBamazon();
-    bamazonConnection.query("SELECT * from products", function (error, response) {
+    if (allItems = false) {
+         bamazonConnection.query("SELECT * from products", function (error, response) {
         if (error) {
             console.error(error);
         }
@@ -52,7 +60,12 @@ function getAll() {
             console.log('-----------------------------')
         }
     })
-    placeOrder();
+    placeOrder();   
+    }
+    if (allItems = true) {
+        placeOrder();
+    }
+
 };
 
 function placeOrder() {
@@ -64,7 +77,7 @@ function placeOrder() {
         type: 'input',
         name: 'quantity',
         message: 'How many of this item would you like to order?',
-    }]).then( answers => {
+    }]).then(answers => {
         var orderedItemID = Number(answers.askforid);
         var orderQuantity = Number(answers.quantity);
         inventoryCheck(orderedItemID, orderQuantity);
@@ -72,16 +85,34 @@ function placeOrder() {
 };
 
 function inventoryCheck(orderedItemID, orderQuantity) {
-    bamazonConnection.query("SELECT * from products WHERE?", {
-        item_id: orderedItemID
+    bamazonConnection.query("SELECT * from products WHERE ?", {
+        item_id: orderedItemID,
     }, function (error, response) {
         if (error) {
             console.error(error);
         }
-        console.log(response)
+        ///ask why i cant response.stock_quantity without loop?
+        for (var i = 0; i < response.length; i++) {
+            var currentStock = response[i].stock_quantity;
+            var productName = response[i].product_name;
+            var productPrice = response[i].price;
+            var itemID = response[i].item_id;
+            console.log(`Product Name: ${productName}, Product Price: ${productPrice}, Item ID: ${itemID}, Current Stock: ${currentStock}`);
+            if (currentStock < orderQuantity) {
+                console.log(`Insufficient quantity of ${productName} in stock to fulfill this order. We currently have ${currentStock} units in stock. Please try again. `);
+                getAll();
+            }
+            if (currentStock >= orderQuantity) {
+                orderSummary();
+            }
+        }
+
 
         console.log(`Ordered Item ID: ${orderedItemID}, Order Quantity: ${orderQuantity}`);
 
     });
+}
+function orderSummary() {
+    console.log(`whatup`)
 }
 askName();
