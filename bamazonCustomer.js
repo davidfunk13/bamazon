@@ -1,7 +1,7 @@
 const inquirer = require('inquirer');
 const mysql = require('mysql');
 
-var allItems = false;
+var connectedToBamazon = false;
 
 var bamazonConnection = mysql.createConnection({
     host: "localhost",
@@ -25,31 +25,28 @@ function askName() {
 };
 
 function connectToBamazon() {
-    var connected = false;
-    if (connected = false) {
+    if (connectedToBamazon = false) {
         bamazonConnection.connect(function (error) {
             if (error) {
                 console.error(error);
             }
-            connected = true;
+            connectedToBamazon = true;
         });
     }
 };
 
 function disconnectFromBamazon() {
-    var connected = true;
     bamazonConnection.end(function (error) {
         if (error) {
             console.log(error);
         }
-        console.log(`query made and connection ended successfully`)
-        connected = false;
+        console.log(`Connection ended successfully`)
+        connectedToBamazon = false;
     });
 };
 function getAll() {
     connectToBamazon();
-    if (allItems = false) {
-         bamazonConnection.query("SELECT * from products", function (error, response) {
+    bamazonConnection.query("SELECT * from products", function (error, response) {
         if (error) {
             console.error(error);
         }
@@ -60,12 +57,7 @@ function getAll() {
             console.log('-----------------------------')
         }
     })
-    placeOrder();   
-    }
-    if (allItems = true) {
-        placeOrder();
-    }
-
+    placeOrder();
 };
 
 function placeOrder() {
@@ -103,7 +95,7 @@ function inventoryCheck(orderedItemID, orderQuantity) {
                 getAll();
             }
             if (currentStock >= orderQuantity) {
-                orderSummary();
+                orderSummary(productName, productPrice, orderQuantity, itemID, currentStock);
             }
         }
 
@@ -112,7 +104,42 @@ function inventoryCheck(orderedItemID, orderQuantity) {
 
     });
 }
-function orderSummary() {
-    console.log(`whatup`)
+function orderSummary(productName, productPrice, orderQuantity, itemID, currentStock) {
+    console.log(`Here is a summary of your order!\n\n Product: ${productName}\n Product Price: ${productPrice}\n Order Quantity: ${orderQuantity}`)
+    inquirer.prompt({
+        type: 'list',
+        name: 'continueorder',
+        message: 'Do you wish to continue with your order?',
+        choices: ['Yes', 'No'],
+    }).then(answers => {
+        console.log(answers.continueorder);
+        if (answers.continueorder === 'Yes') {
+            checkout(productName, productPrice, orderQuantity, itemID, currentStock);
+        }
+        if (answers.continueorder === 'No') {
+            getAll();
+        }
+    })
+};
+
+function checkout(productName, productPrice, orderQuantity, itemID, currentStock) {
+    var orderTotal = productPrice * orderQuantity;
+    var newStock = currentStock - orderQuantity;
+    console.log(currentStock, newStock)
+    bamazonConnection.query("UPDATE products SET ? WHERE ?", [
+        {
+            stock_quantity: newStock
+        },
+        {
+            item_id: itemID
+        }
+    ], function (error, response) {
+        if (error) {
+            console.log(error);
+        }
+    });
+    ///order recap
+    console.log(`Congratulations and thank you for your order!\n\nYour total for this order comes to: $${orderTotal}\nWe now have ${newStock} of the item you ordered remaining until our next shipment.\n\nThank you for choosing bAmazon.`)
+    disconnectFromBamazon();
 }
 askName();
