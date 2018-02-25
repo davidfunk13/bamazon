@@ -37,21 +37,7 @@ function disconnectFromBamazon() {
         console.log(`query made and connection ended successfully`)
     });
 }
-function getAll() {
-    connectToBamazon();
-    bamazonConnection.query("SELECT * from products", function (error, response) {
-        if (error) {
-            console.error(error);
-        }
-        console.log(`Here are our items in stock!`);
-        for (var i = 0; i < response.length; i++) {
-            var productName = response[i].product_name;
-            console.log(`Item ID: ${response[i].item_id}\n\nProduct Name: ${response[i].product_name}\nPrice: ${response[i].price}\n`);
-            console.log('-----------------------------')
-        }
-    })
-    askForProductID();
-};
+
 function askForProductID() {
     inquirer.prompt({
         type: 'list',
