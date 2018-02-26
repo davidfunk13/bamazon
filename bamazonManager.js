@@ -141,7 +141,13 @@ function insertToDatabase() {
         var newItemPrice = answers.price;
         var newItemStock = answers.stock
         console.log(newProduct, newItemdepartment, newItemPrice, newItemStock);
-        // bamazonManagerConnection.query(`INSERT INTO products ('product_name', 'department_name', 'price', 'stock_quantity') VALUES ("${}", "Video Games", 59.99, 9999)`);
+        var sql = `INSERT INTO products (product_name, department_name, price, stock_quantity) VALUES ("${newProduct}", "${newItemdepartment}", ${newItemPrice}, ${newItemStock})`;
+        bamazonManagerConnection.query(sql, function (error, response){
+            if (error) {
+                console.log(error);
+            }
+            console.log(response);
+        });
     })
 };
 connectToBamazon();
