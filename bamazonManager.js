@@ -36,11 +36,11 @@ function mainMenu() {
             viewLow()
         }
         if (answers.mainmenu === 'Add to Inventory') {
+            addToInventory();
+        }
+        if (answers.mainmenu === 'Add New Product') {
             insertToDatabase();
         }
-        // if (answers.mainmenu === 'Add new Product') {
-
-        // }
     });
 };
 
@@ -130,7 +130,7 @@ function insertToDatabase() {
             name: 'price',
             message: 'How much does this product cost?',
         },
-        {  
+        {
             type: 'input',
             name: 'stock',
             message: 'How many of this item do we have?'
@@ -142,7 +142,7 @@ function insertToDatabase() {
         var newItemStock = answers.stock
         console.log(newProduct, newItemdepartment, newItemPrice, newItemStock);
         var sql = `INSERT INTO products (product_name, department_name, price, stock_quantity) VALUES ("${newProduct}", "${newItemdepartment}", ${newItemPrice}, ${newItemStock})`;
-        bamazonManagerConnection.query(sql, function (error, response){
+        bamazonManagerConnection.query(sql, function (error, response) {
             if (error) {
                 console.log(error);
             }
@@ -150,5 +150,30 @@ function insertToDatabase() {
         });
     })
 };
+
+// add to inventory function
+function addToInventory() {
+    inquirer.prompt([
+        {
+            type: 'input',
+            name: 'productid',
+            message: 'What is the Item ID of the product you wish to update in the database?',
+        },
+        {
+            type: 'input',
+            name: 'howmany',
+            message: 'How many more of this item do we have?',
+        },
+    ]).then(answers => {
+        var idToUpdate = answers.productid;
+        var howManyMore = answers.howmany;
+        var sql = `UPDATE products SET stock_quantity = stock_quantity + ${howManyMore} WHERE item_id = ${idToUpdate}`;
+        bamazonManagerConnection.query(sql, function (error, response) {
+            if (error) {
+                console.log(error);
+            }
+        });
+    });
+}
 connectToBamazon();
 mainMenu()
