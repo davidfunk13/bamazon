@@ -3,6 +3,7 @@ const inquirer = require('inquirer');
 const mysql = require('mysql');
 const Table = require('cli-table');
 
+// Table constructor
 var table = new Table({
     head: ['Item ID', 'Product Name', ' Price', 'Department Name', 'Our Current Stock'],
     colWidths: [20, 20, 20, 20, 20]
@@ -31,16 +32,16 @@ function mainMenu() {
         if (answers.mainmenu === 'View Products for Sale') {
             showAll();
         }
-        // if (answers.mainmenu === 'View Low Inventory') {
-
-        // }
+        if (answers.mainmenu === 'View Low Inventory') {
+            viewLow()
+        }
         // if (answers.mainmenu === 'Add to Inventory') {
 
         // }
         // if (answers.mainmenu === 'Add new Product') {
 
         // }
-    })
+    });
 };
 
 //Connect to database function
@@ -79,17 +80,38 @@ function showAll() {
             var itemPrice = response[i].price;
             var currentStock = response[i].stock_quantity;
             pushToTable(itemID, productName, itemPrice, departmentName, currentStock);
-            // console.log(`Item: ${itemID} | Product Name: ${productName} | Department: ${departmentName} Price: ${itemPrice} Stock Quantity: ${currentStock}`);
         }
         console.log(table.toString());
-        // function tableMaker('values')
     })
 };
+
+//pushes databse values to respective table columns when function show all is called.
 function pushToTable(itemID, productName, itemPrice, departmentName, currentStock) {
-// console.log(`Item: ${itemID} | Product Name: ${productName} | Department: ${departmentName} Price: ${itemPrice} Stock Quantity: ${currentStock}`);
     table.push(
         [itemID, productName, itemPrice, departmentName, currentStock]
     );
 }
+
+//function to view low inventory
+function viewLow() {
+    bamazonManagerConnection.query("SELECT * from products", function (error, response) {
+        if (error) {
+            console.error(error);
+        }
+        for (var i = 0; i < response.length; i++) {
+            var itemID = response[i].item_id;
+            var productName = response[i].product_name;
+            var departmentName = response[i].department_name;
+            var itemPrice = response[i].price;
+            var currentStock = response[i].stock_quantity;
+            if (currentStock <= 5) {
+                pushToTable(itemID, productName, itemPrice, departmentName, currentStock);
+
+            }
+
+        }
+        console.log(table.toString());
+    })
+};
 connectToBamazon();
 mainMenu();
