@@ -1,4 +1,3 @@
-//test line
 const inquirer = require('inquirer');
 const mysql = require('mysql');
 
@@ -57,8 +56,8 @@ function getAll() {
             console.log(`Item ID: ${response[i].item_id}\n\nProduct Name: ${response[i].product_name}\nPrice: ${response[i].price}\n`);
             console.log('-----------------------------')
         }
+        placeOrder();
     })
-    placeOrder();
 };
 
 function placeOrder() {
@@ -71,6 +70,9 @@ function placeOrder() {
         name: 'quantity',
         message: 'How many of this item would you like to order?',
     }]).then(answers => {
+        if (answers.askforid === '') {
+            console.log(`You didn't enter anything. please try`)
+        }
         var orderedItemID = Number(answers.askforid);
         var orderQuantity = Number(answers.quantity);
         inventoryCheck(orderedItemID, orderQuantity);
@@ -84,7 +86,6 @@ function inventoryCheck(orderedItemID, orderQuantity) {
         if (error) {
             console.error(error);
         }
-        ///ask why i cant response.stock_quantity without loop?
         for (var i = 0; i < response.length; i++) {
             var currentStock = response[i].stock_quantity;
             var productName = response[i].product_name;

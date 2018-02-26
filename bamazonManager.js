@@ -35,9 +35,9 @@ function mainMenu() {
         if (answers.mainmenu === 'View Low Inventory') {
             viewLow()
         }
-        // if (answers.mainmenu === 'Add to Inventory') {
-
-        // }
+        if (answers.mainmenu === 'Add to Inventory') {
+            insertToDatabase();
+        }
         // if (answers.mainmenu === 'Add new Product') {
 
         // }
@@ -106,12 +106,43 @@ function viewLow() {
             var currentStock = response[i].stock_quantity;
             if (currentStock <= 5) {
                 pushToTable(itemID, productName, itemPrice, departmentName, currentStock);
-
             }
 
         }
         console.log(table.toString());
     })
 };
+
+function insertToDatabase() {
+    inquirer.prompt([
+        {
+            type: 'input',
+            name: 'newproduct',
+            message: 'What is the name of the product you wish to add to the database?',
+        },
+        {
+            type: 'input',
+            name: 'department',
+            message: 'What is the department the product should be placed in?',
+        },
+        {
+            type: 'input',
+            name: 'price',
+            message: 'How much does this product cost?',
+        },
+        {  
+            type: 'input',
+            name: 'stock',
+            message: 'How many of this item do we have?'
+        }
+    ]).then(answers => {
+        var newProduct = answers.newproduct;
+        var newItemdepartment = answers.department;
+        var newItemPrice = answers.price;
+        var newItemStock = answers.stock
+        console.log(newProduct, newItemdepartment, newItemPrice, newItemStock);
+        // bamazonManagerConnection.query(`INSERT INTO products ('product_name', 'department_name', 'price', 'stock_quantity') VALUES ("${}", "Video Games", 59.99, 9999)`);
+    })
+};
 connectToBamazon();
-mainMenu();
+mainMenu()
