@@ -1,7 +1,12 @@
 const inquirer = require('inquirer');
 const mysql = require('mysql');
-
+const Table = require('cli-table')
 var connectedToBamazon = false;
+
+var table = new Table({
+    head: ['Item ID', 'Product Name', ' Price', 'Department Name', 'Our Current Stock'],
+    colWidths: [ 20, 20, 20, 20, 20]
+});
 
 var bamazonConnection = mysql.createConnection({
     host: "localhost",
@@ -52,10 +57,16 @@ function getAll() {
         }
         console.log(`Here are our items in stock!`);
         for (var i = 0; i < response.length; i++) {
+            var itemID = response[i].item_id;
             var productName = response[i].product_name;
-            console.log(`Item ID: ${response[i].item_id}\n\nProduct Name: ${response[i].product_name}\nPrice: ${response[i].price}\n`);
-            console.log('-----------------------------')
+            var itemPrice = response[i].price;
+            var departmentName = response[i].department_name;
+            var currentStock = response[i].stock_quantity;
+            table.push(
+                [itemID, productName, itemPrice, departmentName, currentStock]
+            );
         }
+        console.log(table.toString());
         placeOrder();
     })
 };

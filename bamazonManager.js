@@ -31,6 +31,7 @@ function mainMenu() {
     }).then(answers => {
         if (answers.mainmenu === 'View Products for Sale') {
             showAll();
+            return;
         }
         if (answers.mainmenu === 'View Low Inventory') {
             viewLow()
